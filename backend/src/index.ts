@@ -1,11 +1,13 @@
 import express from 'express';
 import {safeParse, z} from 'zod';
 import type {Request, Response} from "express";
-import mongoose from 'mongoose';
+import mongoose, {Types} from 'mongoose';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
 import {UserModel} from "./db.js";
+import { authMiddleWare } from './middleware.js';
+import { ContentModel} from './db.js';
 
 dotenv.config();
 
@@ -31,8 +33,8 @@ const signUpSchema = z.object({
 })
 
 const signInSchema = z.object({
-    username: z.string(),
-    password: z.string()
+    username: z.string().min(1, { message: "Username is required" }),
+    password: z.string().min(1, { message: "Password is required" })
 });
 
 app.post("/api/v1/signup", async (req: Request, res: Response) =>{
@@ -118,7 +120,7 @@ app.post("/api/v1/signin", async (req: Request, res: Response) =>{
 
         if(!isPasswordMatch) {
             res.status(403).json({
-                success: true,
+                success: false,
                 message: "Invalid username or password"
             });
             return;
@@ -151,13 +153,100 @@ app.post("/api/v1/signin", async (req: Request, res: Response) =>{
 
 })
 
-app.post("/api/v1/content", (req: Request, res: Response) =>{
-    
+app.post("/api/v1/content", authMiddleWare ,async (req: Request, res: Response) =>{
+    try {
+        const {type, link, title, tags} = req.body;
+
+        if (!type || !link || !title) {
+            return res.status(400).json({
+                message: "Missing required fields"
+            })
+        }
+
+        if(type !== 'document' && type != 'tweet') {
+            return res.status(400).json({
+                message: "Invalid type"
+            })
+        }
+
+        const userId = (req as any).userId;
+
+        const newContent = await ContentModel.create({
+            type,
+            link,
+            title,
+            tags: tags || [],
+            userId : userId
+        });
+
+        return res.status(201).json({
+            message: "Content added successfully",
+            data: newContent
+        });
+
+    } catch(error: any) {
+        return res.status(500).json({
+            message: "Failed to add content ",
+            error: error.message
+        })
+    }
 })
 
-app.get("/api/v1/content", (req: Request, res: Response) =>{
-    
+app.get("/api/v1/content", authMiddleWare, async (req: Request, res: Response) =>{
+    try{
+        const userId = req.userId;
+        const content = await ContentModel.find({
+            userId: new Types.ObjectId(userId)
+//with populate we will get the userId as well as the actual content of userId
+//the second argument is select, agr mention nhi kiya then it will get even password as well
+        }).populate("userId", "username"); 
+        res.json({
+            content
+        });
+    } catch(error) {
+
+    }
 })  
+
+app.delete("/api/v1/delete", authMiddleWare, async (req: Request, res: Response) => {
+    try{
+        const {contentId} = req.body.contentId;
+        const userId = req.userId;
+
+        if(!contentId) {
+            return res.status(400).json({
+                success: false,
+                message: "Content ID is required in the request body"
+            });
+        }
+
+        const result = await ContentModel.deleteOne({
+            _id: new Types.ObjectId(contentId),
+            userId: new Types.ObjectId(userId)
+        })
+
+        if (result.deletedCount === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Content not found, or you do not have permission to delete it."
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Content deleted successfully."
+        });
+    } catch(error) {
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server error occurred while trying to delete the content."
+        })
+    }
+})
+
+app.post("/api/v1/brain/share", authMiddleWare, (req: Request, res: Response) => { 
+
+})
 
 app.listen(process.env.PORT, () => {
     console.log(`Server is running on PORT ${process.env.PORT}`);
