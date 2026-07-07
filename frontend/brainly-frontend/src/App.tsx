@@ -1,5 +1,6 @@
 import { Button } from './components/ui/Button'
 import { PlusIcon } from './components/icons/PlusIcon'
+import { ShareIcon } from './components/icons/ShareIcon'
 
 function App() {
   
