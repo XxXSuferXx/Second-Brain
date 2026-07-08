@@ -8,6 +8,8 @@ import bcrypt from 'bcrypt';
 import {UserModel} from "./db.js";
 import { authMiddleWare } from './middleware.js';
 import { ContentModel} from './db.js';
+import { LinkModel } from './db.js';
+import {random} from './utils.js';
 
 dotenv.config();
 
@@ -204,7 +206,9 @@ app.get("/api/v1/content", authMiddleWare, async (req: Request, res: Response) =
             content
         });
     } catch(error) {
-
+        return res.status(500).json({
+            message: "Internal Server Error while retreiving the content"
+        })
     }
 })  
 
@@ -244,7 +248,74 @@ app.delete("/api/v1/delete", authMiddleWare, async (req: Request, res: Response)
     }
 })
 
-app.post("/api/v1/brain/share", authMiddleWare, (req: Request, res: Response) => { 
+app.post("/api/v1/brain/share", authMiddleWare, async (req: Request, res: Response) => { 
+    try{
+        const share = req.body.share;
+        const hash = random(10);
+        if(share) {
+            const existingLink = await LinkModel.findOne({
+                userId: req.userObjectId
+            })
+            if(existingLink) {
+                res.json({
+                    hash: existingLink.hash
+                })
+                return;
+            }
+            await LinkModel.create({
+                userId: req.userId as any,
+                hash: hash
+            })
+            res.json({
+                message: "/share/" + hash
+            })
+        } else {
+            await LinkModel.deleteOne({
+                userId: req.userId as any
+            })
+        }
+        res.json({
+            message: "Updated sharable link"
+        })
+    } catch(error) {
+        res.status(500).json({
+            message: "Internal Server Error while sharing the link"
+        })
+    }
+})
+
+app.get("/api/v1/brain/:shareLink", async (req: Request, res: Response) => {
+    const hash = req.params.shareLink as string;
+
+    const link = await LinkModel.findOne({
+        hash
+    });
+
+    if (!link) {
+        res.status(411).json({
+            message: "Sorry incorrect input"
+        })
+        return;
+    }
+    const content = await ContentModel.findOne({
+        userId: link.userId 
+    })
+
+    const user = await UserModel.findOne({
+        userId: link.userId
+    })
+
+    if(!user) {
+        res.status(411).json({
+            message: "Error! User not found"
+        })
+        return;
+    }
+
+    res.json({
+        username: user.username,
+        content: content
+    })
 
 })
 

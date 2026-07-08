@@ -5,9 +5,7 @@ const UserSchema = new Schema({
     password: {type: String, required: true}
 });
 
-export const UserModel = model("User", UserSchema);
-
-const contentSchema = new Schema({
+const ContentSchema = new Schema({
     title: { type: String, required: true },
     link: { type: String, required: true },
     type: { type: String, enum: ['document', 'tweet'], required: true }, 
@@ -15,4 +13,11 @@ const contentSchema = new Schema({
     userId: { type: Types.ObjectId, ref: 'User', required: true }
 });
 
-export const ContentModel = model("Content", contentSchema);
+export const LinkSchema = new Schema({
+    hash: String,
+    userId: { type: Types.ObjectId, ref: 'User', required: true, unique: true }
+})
+
+export const UserModel = model("User", UserSchema);
+export const ContentModel = model("Content", ContentSchema);
+export const LinkModel = model("Links", LinkSchema);

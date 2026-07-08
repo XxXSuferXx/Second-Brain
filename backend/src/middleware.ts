@@ -1,5 +1,6 @@
 import type { NextFunction, Response, Request } from 'express';
 import jwt from 'jsonwebtoken';
+import {Types} from 'mongoose';
 
 interface DecodedToken {
     userId: string;
@@ -31,6 +32,7 @@ export const authMiddleWare = (req:Request, res: Response, next: NextFunction) =
         }
         const decoded = jwt.verify(token, secret) as DecodedToken;
         req.userId = decoded.userId;
+        req.userObjectId = new Types.ObjectId(decoded.userId);
        next();
     } catch(error) {
         return res.status(403).json({
