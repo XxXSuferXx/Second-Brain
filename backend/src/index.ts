@@ -258,7 +258,7 @@ app.post("/api/v1/brain/share", authMiddleWare, async (req: Request, res: Respon
             })
             if(existingLink) {
                 res.json({
-                    hash: existingLink.hash
+                    message: "/share/" + existingLink.hash
                 })
                 return;
             }
@@ -284,7 +284,7 @@ app.post("/api/v1/brain/share", authMiddleWare, async (req: Request, res: Respon
     }
 })
 
-app.get("/api/v1/brain/:shareLink", async (req: Request, res: Response) => {
+app.get("/api/v1/brain/share/:shareLink", async (req: Request, res: Response) => {
     const hash = req.params.shareLink as string;
 
     const link = await LinkModel.findOne({
@@ -302,7 +302,7 @@ app.get("/api/v1/brain/:shareLink", async (req: Request, res: Response) => {
     })
 
     const user = await UserModel.findOne({
-        userId: link.userId
+        _id: link.userId
     })
 
     if(!user) {
