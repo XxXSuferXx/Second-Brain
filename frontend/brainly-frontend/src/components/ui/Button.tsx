@@ -25,7 +25,7 @@ const sizeStyles = {
 const defaultStyles = "rounded-md flex items-center font-normal"
 
 export const Button = (props: ButtonProps) => {
-    return <button className = {`${variantStyles[props.variant]} ${defaultStyles} ${sizeStyles 
+    return <button onClick = {props.onClick}className = {`${variantStyles[props.variant]} ${defaultStyles} ${sizeStyles 
         [props.size]} `}> 
         {props.startIcon? <div className = "pr-2">{props.startIcon}</div> : null}
         {props.text}{props.endIcon}</button>
