@@ -1,11 +1,15 @@
 import { SidebarItem } from "./SidebarItem"
-import { ShareIcon } from "../icons/ShareIcon"
+import { TwitterIcon } from "../icons/TwitterIcon"
+import { YoutubeIcon } from "../icons/YoutubeIcon"
 
 export function Sidebar() {
     return <div>
-        <aside className="w-64 bg-gray-400">
+        <div className="h-screen w-64 border-2 bg-gray-400 border-r fixed left-0 top-0">
             <p>Sidebar Navigation</p>
-            <SidebarItem text = "tweets" startIcon = {<ShareIcon size = "md" />} />
-        </aside>
+            <div>
+                <SidebarItem text = "tweets" startIcon = {<TwitterIcon />} />
+                <SidebarItem text = "youtube" startIcon = {<YoutubeIcon/>} />
+            </div>
+        </div>
     </div>
 }
