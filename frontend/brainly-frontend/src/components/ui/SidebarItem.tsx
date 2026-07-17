@@ -7,9 +7,9 @@ export interface SidebarItemProps {
 
 export const SidebarItem = (props: SidebarItemProps) => {
     return (
-        <div className="flex items-center gap-3 py-3 px-4 hover:bg-gray-300/50 rounded-lg cursor-pointer">
+        <div className="flex items-center gap-3 py-3 hover:bg-gray-300/50 rounded-lg cursor-pointer">
            
-            <div className="flex items-center justify-center size-6 text-gray-900 shrink-0">
+            <div className="flex items-center justify-center size-6 text-gray-900 shrink-0 pr-2">
                 {props.startIcon}
             </div>
            
