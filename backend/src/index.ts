@@ -10,6 +10,7 @@ import { authMiddleWare } from './middleware.js';
 import { ContentModel} from './db.js';
 import { LinkModel } from './db.js';
 import {random} from './utils.js';
+import cors from "cors";
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ await mongoose.connect(process.env.DB_URL as string);
 const app = express();
 
 app.use(express.json());
+app.use(cors());
 
 const signUpSchema = z.object({
     username: z
