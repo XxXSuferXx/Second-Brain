@@ -10,7 +10,7 @@ export const authMiddleWare = (req:Request, res: Response, next: NextFunction) =
 
     const authHeader = req.headers["authorization"];
     
-    if(!authHeader || !authHeader.startsWith('Bearer ')) {
+    if(!authHeader) {
  
         return res.status(401).json({
             success: false,
@@ -19,7 +19,7 @@ export const authMiddleWare = (req:Request, res: Response, next: NextFunction) =
 
     }
 
-    const token = authHeader.split(' ')[1];
+    const token = authHeader;
     if (!token) {
         return res.status(400).json({
             message: "Invalid token"

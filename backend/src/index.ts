@@ -18,8 +18,8 @@ await mongoose.connect(process.env.DB_URL as string);
 
 const app = express();
 
-app.use(express.json());
 app.use(cors());
+app.use(express.json());
 
 const signUpSchema = z.object({
     username: z
@@ -167,7 +167,7 @@ app.post("/api/v1/content", authMiddleWare ,async (req: Request, res: Response) 
             })
         }
 
-        if(type !== 'document' && type != 'tweet') {
+        if(type !== 'youtube' && type != 'twitter') {
             return res.status(400).json({
                 message: "Invalid type"
             })
