@@ -2,8 +2,8 @@ import type { NextFunction, Response, Request } from 'express';
 import jwt from 'jsonwebtoken';
 import {Types} from 'mongoose';
 
-interface DecodedToken {
-    userId: string;
+interface CustomJwtPayload extends jwt.JwtPayload {
+  userId: string;
 }
 
 export const authMiddleWare = (req:Request, res: Response, next: NextFunction) => {
@@ -19,7 +19,9 @@ export const authMiddleWare = (req:Request, res: Response, next: NextFunction) =
 
     }
 
-    const token = authHeader;
+    const token = authHeader.startsWith('Bearer ') 
+    ? authHeader.split(' ')[1] 
+    : authHeader;
     if (!token) {
         return res.status(400).json({
             message: "Invalid token"
@@ -30,13 +32,14 @@ export const authMiddleWare = (req:Request, res: Response, next: NextFunction) =
         if (!secret) {
             throw new Error("JWT_SECRET is not defined in the environment variables");
         }
-        const decoded = jwt.verify(token, secret) as DecodedToken;
+        const decoded = jwt.verify(token, secret) as CustomJwtPayload;
         req.userId = decoded.userId;
         req.userObjectId = new Types.ObjectId(decoded.userId);
        next();
     } catch(error) {
         return res.status(403).json({
-            message: "Forbidden: Invalid or expired token"
+            message: "Forbidden: Invalid or expired token",
+            error: error
         })
     }
 
