@@ -28,6 +28,8 @@ export function CreateContentModal({open, onClose}) {
                 "Authorization": `Bearer ${localStorage.getItem("token")}`
             }
         })
+
+        onClose();
     }
 
     return (

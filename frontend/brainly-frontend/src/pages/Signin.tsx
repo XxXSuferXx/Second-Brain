@@ -23,8 +23,8 @@ export function Signin() {
         navigate("/dashboard");
             
         } catch(error) {
-            console.error("Signup failed:", error);
-            alert("Signup failed. Check console for details.");
+            console.error("Signin failed:", error);
+            alert("Signin failed. Check console for details.");
         }
     }
 
